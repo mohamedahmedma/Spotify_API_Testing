@@ -1,0 +1,266 @@
+{
+	"info": {
+		"_postman_id": "25fa0098-290d-4b45-b2fa-8c06bf52218a",
+		"name": "Spotify",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Access Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "edc5bb9a-c48d-4386-b27d-9026f79f252a",
+						"exec": [
+							"let json = pm.response.json();\r",
+							"pm.environment.set(\"access_token\", json.access_token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"id": "324d0a42-1127-4992-bf2d-8e52ce71ff5f",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"password": "e555d748f677409c9fa3eb758a9d2d3f",
+						"username": "e839834d0cce4773a87189efb5dfc8c8"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text",
+							"uuid": "7c16bf15-0e65-4812-be66-b1cb64413ba8"
+						}
+					]
+				},
+				"url": "https://accounts.spotify.com/api/token"
+			},
+			"response": []
+		},
+		{
+			"name": "Search for Tracks by Keyword",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "339d451f-cebd-49b3-9a59-d3995639591f",
+						"exec": [
+							"pm.test(\"Status Code is 200\", () => pm.response.to.have.status(200));\r",
+							"\r",
+							"pm.test(\"Tracks list is not empty\", () =>{\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.tracks.items.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Tracks names or album tites contain the search keyword\", () =>{\r",
+							"    const json = pm.response.json();\r",
+							"    const found = json.tracks.items.some(track => track.name.toLowerCase().includes(\"love\") || track.album.name.toLowerCase().includes(\"love\"));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"id": "a6c3beca-dc50-4925-bb2b-d66a4e8cd049",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/search?q=love&type=track",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "love"
+						},
+						{
+							"key": "type",
+							"value": "track"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl --request GET \\\r\n  --url 'https://api.spotify.com/v1/search?q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=album' \\\r\n  --header 'Authorization: Bearer 1POdFZRZbvb...qqillRxMr2z'"
+			},
+			"response": []
+		},
+		{
+			"name": "Search for Albums by Artist Name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f8e4b18e-69d0-4ba4-a229-9141119167d5",
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"} )\r",
+							"\r",
+							"pm.test(\"Response includes album details (name , id , release_date)\", () => {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.albums.items.forEach(album => {\r",
+							"        pm.expect(album.name).to.not.be.null;\r",
+							"        pm.expect(album.id).to.not.be.null;\r",
+							"        pm.expect(album.release_date).to.not.be.null;\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Album list is not null\", ()=> {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.albums.items).to.not.be.null;\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"id": "8da8e865-f873-43b5-bb7b-5d389c4cd5e4",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/search?q=Eminem&type=album",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Eminem"
+						},
+						{
+							"key": "type",
+							"value": "album"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Album Details by Album ID",
+			"id": "418df3b3-e926-4f1d-8dc7-8a67ba32964e",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Get Track Details by Track ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "65437820-5917-41e1-abc1-941777a88152",
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"} )\r",
+							"\r",
+							"pm.test(\"Check if 'name' field exists and is not null\", () => {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.have.property('name');\r",
+							"    pm.expect(response.name).to.not.be.null;\r",
+							"    pm.expect(response.name).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check if 'duration_ms' field exists and is not null\", () => {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.have.property('duration_ms');\r",
+							"    pm.expect(response.duration_ms).to.not.be.null;\r",
+							"    pm.expect(response.duration_ms).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check if 'popularity' field exists and is not null\", () => {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.have.property('popularity');\r",
+							"    pm.expect(response.popularity).to.not.be.null;\r",
+							"    pm.expect(response.popularity).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check if 'album' field exists and is not null\", () => {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.have.property('album');\r",
+							"    pm.expect(response.album).to.not.be.null;\r",
+							"    pm.expect(response.album).to.not.be.undefined;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"id": "f1bddc3d-54fb-4a83-afe6-5b40178c3c57",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": "{{base_url}}/tracks/0u2P5u6lvoDfwTYjAADbn4"
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"id": "60999d8b-01cf-4df3-a6f6-e12dbf326216",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
